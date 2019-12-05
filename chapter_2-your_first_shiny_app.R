@@ -74,8 +74,7 @@ shinyApp(ui, server)
 
 ### 4.
 
-#### !!Not Complete!! - Refactor to eliminate duplicate code
-
+library(shiny)
 ui <- fluidPage(
   sliderInput("x", "If x is", 1, 50, step = 5, value = 30),
   sliderInput("y", "and y is", 1, 50, step = 5, value = 5),
@@ -100,3 +99,58 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+#=======================================
+
+library(shiny)
+ui <- fluidPage(
+  sliderInput("x", "If x is", 1, 50, step = 5, value = 30),
+  sliderInput("y", "and y is", 1, 50, step = 5, value = 5),
+  "then, (x * y) is", textOutput("product"),
+  "and (x * y) + 5 is", textOutput("product_plus5"),
+  "and (x * y) + 10 is", textOutput("product_plus10")
+)
+
+server <- function(input, output, session) {
+  product <- reactive({
+    product <- input$x * input$y
+    product
+  })
+  output$product <- renderText({
+    product()
+  })
+  output$product_plus5 <- renderText({
+    product() + 5
+  }) 
+  output$product_plus10 <- renderText({
+    product() + 10
+  })
+}
+
+shinyApp(ui, server)
+
+### 5.
+
+#### !!Not Complete!! - Refactor to eliminate duplicate code
+
+library(ggplot2)
+
+datasets <- data((package = "ggplot2")$results[, "Item"])
+
+ui <- fluidPage(
+  selectInput("dataset", "Dataset", choices = datasets),
+  verbatimTextOutput("summary"),
+  tableOutput("plot")
+)
+
+server <- function(input, output, session) {
+  dataset <- reactive({
+    get(input$dataset, "package:ggplot2")
+  })
+  output$summary <- renderPrint({
+    summary(dataset())
+  })
+  output$plot <- renderPlot({
+    plot(dataset())
+  })
+}
