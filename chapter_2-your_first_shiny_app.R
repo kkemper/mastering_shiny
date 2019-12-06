@@ -131,22 +131,20 @@ shinyApp(ui, server)
 
 ### 5.
 
-#### !!Not Complete!! - Find remaining two bugs
 library(shiny)
 library(ggplot2)
 
-datasets <- data((package = "ggplot2")$results[, "Item"])
+datasets <- data(package = "ggplot2")$results[, "Item"]
 
 ui <- fluidPage(
   selectInput("dataset", "Dataset", choices = datasets),
   verbatimTextOutput("summary"),
-  plotOutput("plot")
+  tableOutput("plot")
 )
 
 server <- function(input, output, session) {
   dataset <- reactive({
     get(input$dataset, "package:ggplot2")
-    dataset
   })
   output$summary <- renderPrint({
     summary(dataset())
@@ -155,3 +153,5 @@ server <- function(input, output, session) {
     plot(dataset())
   })
 }
+
+shinyApp(ui, server)
