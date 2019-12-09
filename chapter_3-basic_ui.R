@@ -295,13 +295,25 @@ shinyApp(ui, server)
 #### 2.
 
 ui <- fluidPage(
-  plotOutput("plot", width = "50%"),
-  plotOutput("plot2", width = "50%")
+  plotOutput("plot", width = "auto",inline = TRUE),
+  plotOutput("plot2", width = "auto", inline = TRUE)
 )
 
 server <- function(input, output, session) {
   output$plot <- renderPlot(plot(1:5))
   output$plot2 <- renderPlot(plot(6:10))
+}
+
+shinyApp(ui, server)
+
+#### 3.
+
+ui <- fluidPage(
+  dataTableOutput("table")
+)
+
+server <- function(input, output, session) {
+  output$table <- renderTable(mtcars, options = list(pageLength = 5))
 }
 
 shinyApp(ui, server)
