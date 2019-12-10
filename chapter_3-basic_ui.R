@@ -317,3 +317,53 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+# 3.4.6 - Exercises
+
+#### 1.
+
+ui <- fluidPage(
+  headerPanel("Central limit theorem"),
+  sidebarLayout(
+    mainPanel(
+      plotOutput("hist")
+      ),
+    sidebarPanel(
+      numericInput("m", "Number of samples:", 2, min = 1, max = 100)
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  output$hist <- renderPlot({
+    means <- replicate(1e4, mean(runif(input$m)))
+    hist(means, breaks = 20)
+  })
+}
+shinyApp(ui, server)
+
+#### 2.
+
+ui <- fluidPage(
+  theme = shinythemes::shinytheme("darkly"),
+  headerPanel("Central limit theorem"),
+  sidebarLayout(
+    mainPanel(
+      plotOutput("hist")
+    ),
+    sidebarPanel(
+      numericInput("m", "Number of samples:", 2, min = 1, max = 100)
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  output$hist <- renderPlot({
+    means <- replicate(1e4, mean(runif(input$m)))
+    hist(means, breaks = 20)
+  })
+}
+shinyApp(ui, server)
+
+## 3.5 Under the Hood
+
