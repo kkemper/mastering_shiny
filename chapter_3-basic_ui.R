@@ -316,6 +316,32 @@ server <- function(input, output, session) {
   output$table <- renderTable(mtcars, options = list(pageLength = 5))
 }
 
+theme_demo <- function(theme) {
+  fluidPage(
+    theme = shinythemes::shinytheme(theme),
+    sidebarLayout(
+      sidebarPanel(
+        textInput("txt", "Text Input:", "text here"),
+        sliderInput("slider", "Slider input:", 1, 100, 30)
+      ),
+      mainPanel(
+        h1("Header 1"),
+        h2("Header 2"),
+        p("Some text")
+      )
+    )
+  )
+}
+
+theme_demo("darkly")
+theme_demo("flatly")
+theme_demo("sandstone")
+theme_demo("united")
+
+server <- function(input, output, session){
+  
+}
+
 shinyApp(ui, server)
 
 # 3.4.6 - Exercises
