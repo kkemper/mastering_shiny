@@ -295,3 +295,14 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+## 4.6 - Observers
+
+server <- function(input, output, session) {
+  text <- reactve(paste0("Hello!", input$name, "!"))
+  
+  output$greeting <- renderText(text())
+  observeEvent(input$name, {
+    message("Greeting performed")
+  })
+}
