@@ -2,7 +2,7 @@
 
 library(shiny)
 
-### 8.1.2 - Server
+### 9.1.2 - Server
 ui <- fluidPage(
   fileInput("upload", NULL, buttonLabel = "Upload...", multiple = TRUE),
   tableOutput("files")
@@ -14,7 +14,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 
-###  8.1.3 Uploading Data
+###  9.1.3 Uploading Data
 
 ui <- fluidPage(
 fileInput("file", NULL, accept = c(".csv", ".tsv")),
@@ -41,9 +41,9 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 
-## 8.2 - Download
+## 9.2 - Download
 
-### 8.2.2 - Downloading Data
+### 9.2.2 - Downloading Data
 
 ui <- fluidPage(
   selectInput("dataset", "Pick a dataset", ls("package:datasets")),
@@ -76,7 +76,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 
-### 8.2.3 - Downloading Reports
+### 9.2.3 - Downloading Reports
 
 ui <- fluidPage(
 sliderInput("n", "Number of Points", 1, 100, 50),
@@ -102,7 +102,7 @@ shinyApp(ui, server)
 
 #======================
 
-## 8.3 - Case Study
+## 9.3 - Case Study
 library(shiny)
 ui_upload <- sidebarLayout(
   sidebarPanel(

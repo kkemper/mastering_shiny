@@ -1,8 +1,8 @@
 library(shiny)
 
-# Chapter 9 - Dynamic UI
+# Chapter 8 - Dynamic UI
 
-## 9.1 - Updating Inputs
+## 8.1 - Updating Inputs
 
 ui <- fluidPage(
   numericInput("min", "Minimum", 0),
@@ -21,7 +21,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 
-### 9.1.1 - Simple Uses
+### 8.1.1 - Simple Uses
 
 ui <- fluidPage(
   sliderInput("x1", "x1", 0, min = -10, max = 10),
@@ -56,7 +56,7 @@ server <- function(input, output, session){
 
 shinyApp(ui, server)
 
-### 9.1.2 - Hierarchical Select Boxes
+### 8.1.2 - Hierarchical Select Boxes
 
 sales <- vroom::vroom("sales-dashboard/sales_data_sample.csv", col_types = list())
 sales
@@ -103,13 +103,13 @@ shinyApp(ui, server)
 
 #----------------------------------------------------
 
-### 9.1.3 - Circular References
+### 8.1.3 - Circular References
 
-### 9.1.4 - Inter-related Inputs
+### 8.1.4 - Inter-related Inputs
 
-### 9.1.5 - Exercises
+### 8.1.5 - Exercises
 
-#### 9.1.5.1
+#### 8.1.5.1
 library(shiny)
 ui <- fluidPage(
   numericInput("year", "Year", value = 2020),
@@ -129,7 +129,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 
-#### 9.5.1.2
+#### 8.1.5.2
 
 library(openintro)
 
@@ -151,7 +151,7 @@ server <- function(input, output, session){
 }
 shinyApp(ui, server)
 
-#### 9.5.1.3
+#### 8.1.5.3
 
 library(gapminder)
 continents <- unique(gapminder$continent)
@@ -179,13 +179,13 @@ server <- function(input, output, session){
 }
 shinyApp(ui, server)
 
-#### 9.5.1.4
+#### 8.1.5.4
 ##### TO BE COMPLETED
 
-#### 9.5.1.4
+#### 8.1.5.5
 ##### TO BE COMPLETED
 
-## 9.2 - Dynamic Visibility
+## 8.2 - Dynamic Visibility
 
 ui <- fluidPage(
   tags$style("#switcher {display:none; }"),
@@ -213,7 +213,7 @@ server <- function(input, output, session){
 
 shinyApp(ui, server)
 
-### 9.2.1  - Conditional UI
+### 8.2.1  - Conditional UI
 
 parameter_tabs <- tagList(
   tags$style("#params {display:none; }"),
