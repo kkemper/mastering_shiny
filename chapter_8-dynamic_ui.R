@@ -549,3 +549,110 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+### 8.4.3 - Exercises
+
+#### 8.4.3.1
+
+ui <- fluidPage(
+  selectInput("type", "type", c("slider", "numeric")),
+  uiOutput("numeric")
+)
+server <- function(input, output, session) {
+  output$numeric <- renderUI({
+    if (input$type == "slider") {
+      sliderInput("n", "n", value = 0, min = 0, max = 100)
+    } else {
+      numericInput("n", "n", value = 0, min = 0, max = 100)  
+    }
+  })
+}
+
+shinyApp(ui, server)
+
+# Convert to Dynamic Visibility
+
+dynamic_tabs <- tagList(
+  tags$style("#dynamic {display:none; }"),
+  tabsetPanel(id = "dynamic",
+              tabPanel("slider",
+                       sliderInput("n", "n", value = isolate(input$n), min = 0, max = 100)),
+              tabPanel("numeric",
+                       numericInput("n", "n", value = isolate(input$n), min = 0, max = 100),
+              )
+)
+)
+
+ui <- fluidPage(
+      selectInput("type", "Input Type",
+                  choices = c("slider", "numeric")
+                  ),
+      dynamic_tabs,
+    )
+
+server <- function(input, output, session) {
+  observeEvent(input$type, {
+    updateTabsetPanel(session, "dynamic", selected = input$type)
+  })
+}
+
+shinyApp(ui, server)
+
+# NEED TO GET VALUES TO SYNC
+
+#### 8.4.3.2
+
+make_ui <- function(x, var) {
+  if (is.numeric(x)) {
+    rng <- range(x, na.rm = TRUE)
+    sliderInput(var, var, min = rng[1], max = rng[2], value = rng)
+  } else if (is.factor(x)) {
+    levs <- levels(x)
+    selectInput(var, var, choices = levs, selected = levs, multiple = TRUE)
+  } else {
+    # Not supported
+    NULL
+  }
+}
+  
+  filter_var <- function(x, val) {
+    if (is.numeric(x)) {
+      !is.na(x) & x >= val[1] & x <= val[2]
+    } else if (is.factor(x)) {
+      x %in% val
+    } else {
+      # No control, so don't filter
+      TRUE
+    }
+  }
+  
+  #================================================================
+  # Add support for date and date-time columns
+  
+  make_ui <- function(x, var) {
+    if (is.numeric(x)) {
+      rng <- range(x, na.rm = TRUE)
+      sliderInput(var, var, min = rng[1], max = rng[2], value = rng)
+    } else if (is.factor(x)) {
+      levs <- levels(x)
+      selectInput(var, var, choices = levs, selected = levs, multiple = TRUE)
+    } else if (ISOdate(x)){
+      dateInput(var, var)
+    } else if (ISOdatetime(x)){
+      
+    } else {
+      # Not supported
+      NULL
+    }
+  }
+  
+  filter_var <- function(x, val) {
+    if (is.numeric(x)) {
+      !is.na(x) & x >= val[1] & x <= val[2]
+    } else if (is.factor(x)) {
+      x %in% val
+    } else {
+      # No control, so don't filter
+      TRUE
+    }
+  }
