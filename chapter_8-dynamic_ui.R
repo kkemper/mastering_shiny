@@ -186,32 +186,32 @@ shinyApp(ui, server)
 ##### TO BE COMPLETED
 
 ## 8.2 - Dynamic Visibility
-
-ui <- fluidPage(
-  tags$style("#switcher {display:none; }"),
-  sidebarLayout((
-    sidebarPanel(
-      selectInput("controller", "Show", choices = paste0("panel", 1:3))
-                  )
-    ),
-    mainPanel(
-      tabsetPanel(
-        id = "switcher",
-        tabPanel("panel1", "Panel 1 content"),
-        tabPanel("panel2", "Panel 2 content"),
-        tabPanel("panel3", "Panel 3 content")
-        )
-      )
-    )
-  )
-
-server <- function(input, output, session){
-  observeEvent(input$controller, {
-    updateTabsetPanel(session, "switcher", selected = input$controller)
-  })
-}
-
-shinyApp(ui, server)
+                                                                                                                                                                  library(shiny)
+                                                                                                                                                                  ui <- fluidPage(
+                                                                                                                                                                    tags$style("#switcher {display:none; }"),
+                                                                                                                                                                    sidebarLayout((
+                                                                                                                                                                      sidebarPanel(
+                                                                                                                                                                        selectInput("controller", "Show", choices = paste0("panel", 1:3))
+                                                                                                                                                                                    )
+                                                                                                                                                                      ),
+                                                                                                                                                                      mainPanel(
+                                                                                                                                                                        tabsetPanel(
+                                                                                                                                                                          id = "switcher",
+                                                                                                                                                                          tabPanel("panel1", "Panel 1 content"),
+                                                                                                                                                                          tabPanel("panel2", "Panel 2 content"),
+                                                                                                                                                                          tabPanel("panel3", "Panel 3 content")
+                                                                                                                                                                          )
+                                                                                                                                                                        )
+                                                                                                                                                                      )
+                                                                                                                                                                    )
+                                                                                                                                                                  
+                                                                                                                                                                  server <- function(input, output, session){
+                                                                                                                                                                    observeEvent(input$controller, {
+                                                                                                                                                                      updateTabsetPanel(session, "switcher", selected = input$controller)
+                                                                                                                                                                    })
+                                                                                                                                                                  }
+                                                                                                                                                                  
+                                                                                                                                                                  shinyApp(ui, server)
 
 ### 8.2.1  - Conditional UI
 
@@ -220,10 +220,10 @@ parameter_tabs <- tagList(
   tabsetPanel(id = "params",
               tabPanel("normal",
                        numericInput("mean", "mean", value = 1),
-                       numericINput("sd", "standard deviation", min = 0, value = 1)
+                       numericInput("sd", "standard deviation", min = 0, value = 1)
                        ),
               tabPanel("uniform",
-                       numercInput("min", "min", value = 0),
+                       numericInput("min", "min", value = 0),
                        numericInput("max", "max", value = 1)
                        ),
               tabPanel("exponential",
@@ -231,3 +231,34 @@ parameter_tabs <- tagList(
                        )
               )
 )
+
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("dist", "Distribution",
+                  choices = c("normal", "uniform", "exponential")
+      ),
+      numericInput("n", "Number of Samples", value = 100),
+      parameter_tabs,
+    ),
+    mainPanel(plotOutput("hist")
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  observeEvent(input$dist, {
+    updateTabsetPanel(session, "params", selected = input$dist)
+  })
+  
+  sample <- reactive({
+  switch(input$dist,
+         normal = rnorm(input$n, input$mean, input$sd),
+         uniform = runif(input$n, input$min, input$max),
+         exponential = rexp(input$n, input$rate)
+         )
+})
+output$hist <- renderPlot(hist(sample()))
+}
+
+shinyApp(ui, server)
