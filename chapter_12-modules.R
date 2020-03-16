@@ -61,6 +61,10 @@ shinyApp(ui)
 
 # Book version
 
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
 histogramUI <- function(id) {
   list(
     selectInput(NS(id, "var"), "Variable", names(mtcars)),
@@ -89,3 +93,98 @@ histogramModule <- function() {
 }
 
 #============================================================
+
+### 12.2.4 - Namespacing
+library(shiny)
+ui <- fluidPage(
+  histogramUI("hist1"),
+  textOutput("out")
+)
+
+server <- function(input, output, session) {
+  histogramServer("hist1")
+  output$out <- renderText(paste0("Bins: ", input$bins))
+}
+
+shinyApp(ui, server)
+
+#============================================================
+
+# Updated app
+
+# shim until Shiny 1.5.0
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+# module ui
+histogramUI <- function(id) {
+  list(
+    selectInput(NS(id, "var"), "Variable", names(mtcars)),
+    numericInput(NS(id, "bins"), "bins", 10, min = 1),
+    plotOutput(NS(id, "hist"))
+  )
+}
+
+# module server
+histogramServer <- function(id) {
+  moduleServer(id, function(input, output, server) {
+    data <- reactive(mtcars[[input$var]])
+    output$hist <- renderPlot({
+      hist(data(), breaks = input$bins, main = input$var)
+    })
+  })
+}
+
+# generate app
+ui <- fluidPage(
+  histogramUI("hist1"),
+  textOutput("out")
+)
+
+server <- function(input, output, session) {
+  histogramServer("hist1")
+  output$out <- renderText(paste0("Bins: ", input$bins))
+}
+
+shinyApp(ui, server)
+
+### 12.3.1 - Getting Started: UI Input + Server Output
+
+# shim until Shiny 1.5.0
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+# module ui
+datasetInput <- function(id, filter = NULL) {
+  names <- ls("package:datasets")
+  if (!is.null(filter)) {
+    data <- lapply(names, get, "package:datasets")
+    names <- names[vapply(data, filter, logical(1))]
+  }
+  
+  selectInput(NS(id, "dataset"), "Pick a dataset", names)
+}
+
+# module server
+datasetServer <- function(id) {
+  moduleServer(id, function(input, output, server) {
+    reactive(get(input$dataset, "package:datasets"))
+  })
+}
+
+# module function
+datasetModule <- function(filter = NULL) {
+  ui <- fluidPage(
+    datasetInput("dataset", filter = filter),
+    tableOutput("data")
+  )
+  server <- function(input, output, session){
+    data <- datasetServer("dataset")
+    output$data <- renderTable(head(data()))
+  }
+  shinyApp(ui, server)
+}
+
+datasetModule(is.data.frame)
