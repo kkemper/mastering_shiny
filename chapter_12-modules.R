@@ -234,3 +234,54 @@ shinyApp(ui, server)
 }
 
 selectNumericVarModule()
+
+### 12.3.3 - Server Inputs
+
+### 12.3.4 - Case Study: Histogram
+
+# shim
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+# module ui
+histogramOutput <- function(id) {
+  list(
+    numericInput(NS(id, "bins"), "bins", 10, min = 1, step = 1),
+    plotOutput(NS(id, "hist"))
+  )
+}
+
+# module server
+histogramServer <- function(id, x) {
+  stopifnot(is.reactive(x))
+  
+  moduleServer(id, function(input, output, session){
+    output$hist <- renderPlot(
+      hist(x(), breaks = input$bins, main = NULL)
+    )
+  })
+}
+
+# module function
+histogramModule <- function() {
+  ui <- fluidPage(
+    sidebarLayout(
+      sidebarPanel(
+        datasetInput("data", is.data.frame),
+        selectNumericVarInput("var"),
+      ),
+      mainPanel(
+        histogramOutput("hist")
+      )
+    )
+  )
+  
+  server <- function(input, output, session) {
+    data <- datasetServer("data")
+    x <- selectNumericVarServer("var", data)
+    histogramServer("hist", x)
+  }
+  shinyApp(ui, server)
+}
+histogramModule()
