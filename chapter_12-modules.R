@@ -338,3 +338,54 @@ histogramModule <- function() {
   shinyApp(ui, server)
 }
 histogramModule()
+
+#12.3.6 - Case Study: Tip Calculator
+
+# shim
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+inlineNumericInput <- function(id, value) {
+  tags$input(id = id, type = "number", value = value, style = "width: 3em", step = 1)
+}
+
+# module UI
+tipUI <- function(id, value) {
+  tags$p(
+    textOutput(NS(id, "total"), inline = TRUE),
+    " * ",
+    inlineNumericInput(NS(id, "percent_tip"), value = value),
+    "% = ",
+    textOutput(NS(id, "tip"), inline = TRUE)
+  )
+}
+
+# module server
+tipServer <- function(id, total) {
+  stopifnot(is.reactive(total))
+  dollar <- function(x) sprintf("$%0.2f", x)
+  
+  moduleServer(id, function(input, output, session) {
+    output$total <- renderText(dollar(total()))
+    output$tip <- renderText(dollar(input$percent_tip / 100 * total()))
+  })
+}
+
+# module function
+tipModule <- function() {
+  ui <- fluidPage(
+    numericInput("bill", "Total bill", value = 10),
+    tipUI("tip1", value = 10),
+    tipUI("tip2", value = 20)
+  )
+  
+  server <- function(input, output, session) {
+    tipServer("tip1", reactive(input$bill))
+    tipServer("tip2", reactive(input$bill))
+  }
+  
+  shinyApp(ui, server)
+}
+
+tipModule()
