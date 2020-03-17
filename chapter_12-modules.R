@@ -389,3 +389,50 @@ tipModule <- function() {
 }
 
 tipModule()
+
+### 12.3.7 - Case Study - Summary
+
+#shim
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+# module ui
+summaryOutput <- function(id) {
+  tags$ul(
+    tags$li("Min: ", textOutput(NS(id, "min"), inline = TRUE)),
+    tags$li("Max: ", textOutput(NS(id, "max"), inline = TRUE)),
+    tags$li("Missing: ", textOutput(NS(id, "n_na"), inline = TRUE))
+  )
+}
+
+#module server
+summaryServer <- function(id, var) {
+  moduleServer(id, function(input, output, session) {
+    rng <- reactive({
+      req(var(), na.rm = TRUE)
+    })
+    
+    output$min <- renderText(rng()[[1]])
+    output$max <- renderText(rng()[[2]])
+    output$n_na <- renderText(sum(is.na(var())))
+  })
+}
+
+# module function
+summaryModule <- function() {
+  ui <- fluidPage(
+    datasetInput("data", is.data.frame),
+    selectNumericVarInput("var"),
+    summaryOutput("summary")
+)
+  
+  server <- function(input, output, session) {
+    df <- datasetServer("data")
+    var <- selectNumericVarServer("var", df)
+    summaryServer("summary", var)
+  }
+
+shinyApp(ui, server)
+}
+summaryModule()
