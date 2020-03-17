@@ -285,3 +285,56 @@ histogramModule <- function() {
   shinyApp(ui, server)
 }
 histogramModule()
+
+ # 12.3.5 - Multiple Outputs
+
+selectNumericVarServer <- function(id, data) {
+  stopifnot(is.reactive(data))
+  
+  moduleServer(id, function(input, output, session) {
+    observeEvent(data(), {
+      is_numeric <- vapply(data(), is.numeric, logical(1))
+      updateSelectInput(session, "var", choices = names(data())[is_numeric])
+    })
+    
+    list(
+      name = reactive(input$var),
+      value = reactive(data()[[input$var]])
+    )
+  })
+}
+
+# module server
+histogramServer <- function(id, x, title = reactive(NULL)) {
+  stopifnot(is.reactive(x))
+  stopifnot(is.reactive(title))
+  
+  moduleServer(id, function(input, output, session) {
+    output$hist <- renderPlot(
+      hist(x(), breaks = input$bins, main = title())
+    )
+  })
+}
+
+# module function
+histogramModule <- function() {
+  ui <- fluidPage(
+    sidebarLayout(
+      sidebarPanel(
+        datasetInput("data", is.data.frame),
+        selectNumericVarInput("var"),
+      ),
+      mainPanel(
+        histogramOutput("hist")
+      )
+    )
+  )
+  
+  server <- function(input, output, session) {
+    data <- datasetServer("data")
+    x <- selectNumericVarServer("var", data)
+    histogramServer("hist", x$value, x$name)
+  }
+  shinyApp(ui, server)
+}
+histogramModule()
