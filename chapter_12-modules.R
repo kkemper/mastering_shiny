@@ -188,3 +188,49 @@ datasetModule <- function(filter = NULL) {
 }
 
 datasetModule(is.data.frame)
+
+### 12.3.2 - Case Study: Numeric Variable Selector
+
+# shim
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+# module ui
+selectNumericVarInput <- function(id) {
+  selectInput(NS(id, "var"), "Variable", choices = NULL)
+}
+
+# module server
+selectNumericVarServer <- function(id, data) {
+  stopifnot(is.reactive(data))
+  
+  moduleServer(id, function(input, output, session) {
+    observeEvent(data(), {
+      is_numeric <- vapply(data(), is.numeric, logical(1))
+      updateSelectInput(session, "var", choices = names(data())[is_numeric])
+    })
+    
+    reactive(data()[[input$var]])
+  })
+}
+
+#module function
+
+selectNumericVarModule <- function() {
+  ui <- fluidPage(
+    datasetInput("data", is.data.frame),
+    selectNumericVarInput("var"),
+    verbatimTextOutput("out")
+  )
+  
+  server <- function(input, output, session) {
+    data <- datasetServer("data")
+    var <- selectNumericVarServer("var", data)
+    output$out <- renderPrint(var())
+}
+
+shinyApp(ui, server)
+}
+
+selectNumericVarModule()
