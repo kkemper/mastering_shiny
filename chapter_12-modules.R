@@ -436,3 +436,71 @@ summaryModule <- function() {
 shinyApp(ui, server)
 }
 summaryModule()
+
+## 12.4 - Reusable  Components
+
+### 12.4.1 - Date with Error
+library(shiny)
+# shim
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+# module ui
+ymdDateInput <- function(id, label) {
+  label <- paste0(label, " (yyyy-mm-dd)")
+  
+  fluidRow(
+    textInput(NS(id, "date"), label),
+    textOutput(NS(id, "error"))
+  )
+}
+
+# module server
+ymdDateServer <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    date <- reactive({
+      req(input$date)
+      ymd(input$date, quiet = TRUE)
+    })
+    
+    output$error <- renderText({
+      if (is.na(date())) {
+        "Please enter valid date in yyyy-mm-dd form"
+      }
+    })
+    
+    date
+  })
+}
+
+# module function
+ymdDateModule <- function(label) {
+  ui <- fluidPage(
+    ymdDateInput("ymd", label),
+    textOutput("date")
+  )
+  server <- function(input, output, session) {
+    date <- ymdDateServer("ymd")
+    output$date <- renderText(date)
+  }
+}
+
+server <- function(input, output, session) {
+  birthday <- ymdDate("birthday")
+  
+  age <- reactive({
+    req(birthday())
+    (birthday() %--% today()) %/% years(1)
+  })
+  
+  output$age <- renderText({
+    paste0("You are ", age(), "yearsold")
+  })
+}
+
+ymdDateModule()
+
+# THIS EXAMPLE DOES NOT SEEM TO WORK
+
+# Limited Selection + Other
