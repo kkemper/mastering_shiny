@@ -503,4 +503,109 @@ ymdDateModule()
 
 # THIS EXAMPLE DOES NOT SEEM TO WORK
 
-# Limited Selection + Other
+# 12.4.2 - Limited Selection + Other
+
+#ui
+ui <- fluidPage(
+  radioButtons("gender", "Gender:",
+               choiceValues = list("male", "female", "self-described", "na"),
+               choiceNames = list(
+                 "Male",
+                 "Female",
+                 textInput("gender_self", NULL, placeholder = "Self-described"),
+                 "Prefer not to say"
+               ),
+               selected = "na",
+  ),
+  textOutput("txt")
+)
+
+# server
+server <- function(input, output, session) {
+  observeEvent(input$gender_self, {
+    req(input$gender_self)
+    updateRadioButtons(session, "gender", selected = "self_described")
+  })
+  gender <- reactive({
+    if(input$gender == "self-described") {
+      input$gender_self
+    } else {
+      input$gender
+    }
+  })
+  
+  output$txt <- renderText({
+    paste("You chose", gender())
+  })
+}
+shinyApp(ui, server)
+
+# =============================================================
+
+# Convert to module
+
+# shim
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+# module ui
+radioButtonsExtraUI <- function(id, label, choices, selected = NULL, placeholder = NULL) {
+  ns <- NS(id)
+  
+  radioButtons(ns("primary"), "Gender:",
+               choiceValues = c(names(choices), "other"),
+               choiceNames = c(
+                 unname(choices),
+                 list(textInput(ns("other"), NULL, placeholder = NULL))
+               ),
+               selected = selected
+               )
+}
+
+# module server
+radioButtonsExtraServer <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    observeEvent(input$primary, {
+      req(input$other)
+      updateRadioButtons(session, "primary", selected = "other")
+    })
+    
+    reactive({
+      if(input$primary == "other") {
+        input$other
+      } else {
+        input$primary
+      }
+    })
+  })
+}
+
+# ui
+ui <- fluidPage(
+  radioButtonsExtraUI("gender",
+                      label = "Gender",
+                      choices = list(
+                        male = "Male",
+                        female = "Female",
+                        na = "Prefer not to say"
+                      ),
+                      placeholder = "Self-described",
+                      selected = "na"
+  ),
+  textOutput("txt")
+)
+
+# server
+server <- function(input, output, session) {
+  gender <- radioButtonsExtraServer("gender")
+  
+  output$txt <- renderText({
+    paste("You chose", gender())
+  })
+}
+
+shinyApp(ui, server)
+
+# 12.5 - Single Object Modules
+
