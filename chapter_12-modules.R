@@ -609,3 +609,150 @@ shinyApp(ui, server)
 
 # 12.5 - Single Object Modules
 
+# shim
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+# module UI
+histogramUI <- function(id, df) {
+  list(
+    selectInput(NS(id, "var"), "Variable", names(df)),
+    numericInput(NS(id, "bins"), "bins", 10, min = 1),
+    plotOutput(NS(id, "hist"))
+  )
+}
+
+# module server
+
+histogramServer <- function(id, df) {
+  moduleServer(id, function(input, output, session) {
+    data <- reactive(df[[input$var]])
+    output$hist <- renderPlot({
+      hist(data(), breaks = input$bins, main = input$var)
+    })
+  })
+}
+
+# ui
+ui <- fluidPage (
+  tabsetPanel(
+    tabPanel("mtcars", histogramUI("mtcars", mtcars)),
+    tabPanel("iris", histogramUI("iris", iris))
+  )
+)
+
+# server
+serve <- function(input, output, session) {
+  histogramServer("mtcars", mtcars)
+  histogramServer("iris", iris)
+}
+
+shinyApp(ui, server)
+
+## 12.6 Exercises
+
+### 12.6.1
+# The following app plots user selected variables from the msleep dataset for three different types of mammals (carnivores, omnivores, and herbivores), with one tab for each type of mammal. Remove the redundancy in the selectInput() definitions with the use of functions.
+
+library(tidyverse)
+
+ui <- fluidPage(
+  selectInput(inputId = "x",
+              label = "X-axis:",
+              choices = c("sleep_total", "sleep_rem", "sleep_cycle", 
+                          "awake", "brainwt", "bodywt"),
+              selected = "sleep_rem"),
+  selectInput(inputId = "y",
+              label = "Y-axis:",
+              choices = c("sleep_total", "sleep_rem", "sleep_cycle", 
+                          "awake", "brainwt", "bodywt"),
+              selected = "sleep_total"),
+  tabsetPanel(id = "vore",
+              tabPanel("Carnivore",
+                       plotOutput("plot_carni")),
+              tabPanel("Omnivore",
+                       plotOutput("plot_omni")),
+              tabPanel("Herbivore",
+                       plotOutput("plot_herbi")))
+)
+
+server <- function(input, output, session) {
+  
+  # make subsets
+  carni <- reactive( filter(msleep, vore == "carni") )
+  omni  <- reactive( filter(msleep, vore == "omni")  )
+  herbi <- reactive( filter(msleep, vore == "herbi") )
+  
+  # make plots
+  output$plot_carni <- renderPlot({
+    ggplot(data = carni(), aes_string(x = input$x, y = input$y)) +
+      geom_point()
+  })
+  output$plot_omni <- renderPlot({
+    ggplot(data = omni(), aes_string(x = input$x, y = input$y)) +
+      geom_point()
+  })
+  output$plot_herbi <- renderPlot({
+    ggplot(data = herbi(), aes_string(x = input$x, y = input$y)) +
+      geom_point()
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+
+# ============================================================
+
+sliderInput01 <- function(id, label, selected) {
+  selectInput(inputId = id, label,
+              choices = c("sleep_total", "sleep_rem", "sleep_cycle", 
+                          "awake", "brainwt", "bodywt"),
+              selected)
+}
+
+tabsetPanel01 <- function(label2, graph) {
+  tabPanel(label2,
+           plotOutput(graph))
+}
+
+# ui
+ui <- fluidRow(
+  sliderInput01("x", "X-axis", "sleep_rem"),
+  sliderInput01("y", "Y-axis", "sleep_total"),
+  tabsetPanel(id = "vore",
+              tabPanel01("Carnivore", "plot_carni"),
+              tabPanel01("Omnivore", "plot_omni"),
+              tabPanel01("Herbivore", "plot_herbi")
+  )
+)
+
+# server
+server <- function(input, output, session) {
+  
+  # make subsets
+  carni <- reactive( filter(msleep, vore == "carni") )
+  omni  <- reactive( filter(msleep, vore == "omni")  )
+  herbi <- reactive( filter(msleep, vore == "herbi") )
+  
+  # make plots
+  output$plot_carni <- renderPlot({
+    ggplot(data = carni(), aes_string(x = input$x, y = input$y)) +
+      geom_point()
+  })
+  output$plot_omni <- renderPlot({
+    ggplot(data = omni(), aes_string(x = input$x, y = input$y)) +
+      geom_point()
+  })
+  output$plot_herbi <- renderPlot({
+    ggplot(data = herbi(), aes_string(x = input$x, y = input$y)) +
+      geom_point()
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+
+### 12.6.2
+# Continue working with the same app from the previous exercise, and further remove redundancy in the code by modularizing how subsets and plots are created.
+
