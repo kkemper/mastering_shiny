@@ -503,7 +503,7 @@ ymdDateModule()
 
 # THIS EXAMPLE DOES NOT SEEM TO WORK
 
-# 12.4.2 - Limited Selection + Other
+#  12.4.2 - Limited Selection + Other
 
 #ui
 ui <- fluidPage(
