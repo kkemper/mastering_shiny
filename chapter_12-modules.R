@@ -756,3 +756,34 @@ shinyApp(ui = ui, server = server)
 ### 12.6.2
 # Continue working with the same app from the previous exercise, and further remove redundancy in the code by modularizing how subsets and plots are created.
 
+# shim
+moduleServer <- function(id, module) {
+  callModule(module, id)
+}
+
+sliderInput01 <- function(id, label, selected) {
+  selectInput(inputId = id, label,
+              choices = c("sleep_total", "sleep_rem", "sleep_cycle", 
+                          "awake", "brainwt", "bodywt"),
+              selected)
+}
+
+tabsetPanel01 <- function(label2, graph) {
+  tabPanel(label2,
+           plotOutput(graph))
+}
+
+# ui
+ui <- fluidRow(
+  sliderInput01("x", "X-axis", "sleep_rem"),
+  sliderInput01("y", "Y-axis", "sleep_total"),
+  tabsetPanel(id = "vore",
+              tabPanel01("Carnivore", "plot_carni"),
+              tabPanel01("Omnivore", "plot_omni"),
+              tabPanel01("Herbivore", "plot_herbi")
+  )
+)
+
+filter01 <- function(vore){
+  reactive( filter(msleep, vore == vore))
+}
