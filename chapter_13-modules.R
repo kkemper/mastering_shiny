@@ -1,4 +1,4 @@
-# Chapter 12 - Shiny Modules
+# Chapter 13 - Shiny Modules
 
 library(shiny)
 
@@ -23,7 +23,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 
-### 12.2.1 - Module UI
+### 13.2.1 - Module UI
 
 histogramUI <- function(id) {
   list(
@@ -33,7 +33,7 @@ histogramUI <- function(id) {
   )
 }
 
-### 12.2.2 -  Module Server
+### 13.2.2 -  Module Server
 
 histogramServer <- function(id) {
   moduleServer(id, function(input, output, server) {
@@ -44,7 +44,7 @@ histogramServer <- function(id) {
   })
 }
 
-# 12.2.3 - Updated App
+# 13.2.3 - Updated App
 
 histogramModule <- function() {
   ui <- fluidPage(
@@ -94,7 +94,7 @@ histogramModule <- function() {
 
 #============================================================
 
-### 12.2.4 - Namespacing
+### 13.2.4 - Namespacing
 library(shiny)
 ui <- fluidPage(
   histogramUI("hist1"),
@@ -149,7 +149,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 
-### 12.3.1 - Getting Started: UI Input + Server Output
+### 13.3.1 - Getting Started: UI Input + Server Output
 
 # shim until Shiny 1.5.0
 moduleServer <- function(id, module) {
@@ -189,7 +189,7 @@ datasetModule <- function(filter = NULL) {
 
 datasetModule(is.data.frame)
 
-### 12.3.2 - Case Study: Numeric Variable Selector
+### 13.3.2 - Case Study: Numeric Variable Selector
 
 # shim
 moduleServer <- function(id, module) {
@@ -235,9 +235,9 @@ shinyApp(ui, server)
 
 selectNumericVarModule()
 
-### 12.3.3 - Server Inputs
+### 13.3.3 - Server Inputs
 
-### 12.3.4 - Case Study: Histogram
+### 13.3.4 - Case Study: Histogram
 
 # shim
 moduleServer <- function(id, module) {
@@ -286,7 +286,7 @@ histogramModule <- function() {
 }
 histogramModule()
 
- # 12.3.5 - Multiple Outputs
+ # 13.3.5 - Multiple Outputs
 
 selectNumericVarServer <- function(id, data) {
   stopifnot(is.reactive(data))
@@ -339,7 +339,7 @@ histogramModule <- function() {
 }
 histogramModule()
 
-#12.3.6 - Case Study: Tip Calculator
+#13.3.6 - Case Study: Tip Calculator
 
 # shim
 moduleServer <- function(id, module) {
@@ -390,7 +390,7 @@ tipModule <- function() {
 
 tipModule()
 
-### 12.3.7 - Case Study - Summary
+### 13.3.7 - Case Study - Summary
 
 #shim
 moduleServer <- function(id, module) {
@@ -437,9 +437,9 @@ shinyApp(ui, server)
 }
 summaryModule()
 
-## 12.4 - Reusable  Components
+## 13.4 - Reusable  Components
 
-### 12.4.1 - Date with Error
+### 13.4.1 - Date with Error
 library(shiny)
 # shim
 moduleServer <- function(id, module) {
@@ -503,7 +503,7 @@ ymdDateModule()
 
 # THIS EXAMPLE DOES NOT SEEM TO WORK
 
-#  12.4.2 - Limited Selection + Other
+#  13.4.2 - Limited Selection + Other
 
 #ui
 ui <- fluidPage(
@@ -607,7 +607,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 
-# 12.5 - Single Object Modules
+# 13.5 - Single Object Modules
 
 # shim
 moduleServer <- function(id, module) {
@@ -650,9 +650,9 @@ serve <- function(input, output, session) {
 
 shinyApp(ui, server)
 
-## 12.6 Exercises
+## 13.6 Exercises
 
-### 12.6.1
+### 13.6.1
 # The following app plots user selected variables from the msleep dataset for three different types of mammals (carnivores, omnivores, and herbivores), with one tab for each type of mammal. Remove the redundancy in the selectInput() definitions with the use of functions.
 
 library(tidyverse)
@@ -753,7 +753,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui = ui, server = server)
 
-### 12.6.2
+### 13.6.2
 # Continue working with the same app from the previous exercise, and further remove redundancy in the code by modularizing how subsets and plots are created.
 
 # shim
@@ -761,6 +761,7 @@ moduleServer <- function(id, module) {
   callModule(module, id)
 }
 
+# 
 sliderInput01 <- function(id, label, selected) {
   selectInput(inputId = id, label,
               choices = c("sleep_total", "sleep_rem", "sleep_cycle", 
@@ -786,4 +787,44 @@ ui <- fluidRow(
 
 filter01 <- function(vore){
   reactive( filter(msleep, vore == vore))
+}
+
+# ============================================================
+
+
+
+### 13.6.5
+# The following module input provides a text control that lets you type a date in ISO8601 format (yyyy-mm-dd). Complete the module by providing a server function that uses the “error” output to display a message if the entered value is not a valid date. You can use strptime(x, "%Y-%m-%d") to parse the string; it will return NA if the value isn’t a valid date.
+
+ymdDateInput <- function(id, label) {
+  label <- paste0(label, " (yyyy-mm-dd)")
+  
+  fluidRow(
+    textInput(NS(id, "date"), label),
+    textOutput(NS(id, "error"))
+  )
+}
+
+### 13.6.6
+#The following code defines output and server components of a module that takes a numeric input and produces a bulleted list of three summary statistics. Create an app function that allows you to experiment with it. The app function should take a data frame as input, and use numericVarSelectInput() to pick the variable to summarise.
+
+summaryOuput <- function(id) {
+  tags$ul(
+    tags$li("Min: ", textOutput(NS(id, "min"), inline = TRUE)),
+    tags$li("Max: ", textOutput(NS(id, "max"), inline = TRUE)),
+    tags$li("Missing: ", textOutput(NS(id, "n_na"), inline = TRUE))
+  )
+}
+
+summaryServer <- function(id, var) {
+  moduleServer(id, function(input, output, session) {
+    rng <- reactive({
+      req(var())
+      range(var(), na.rm = TRUE)
+    })
+    
+    output$min <- renderText(rng()[[1]])
+    output$max <- renderText(rng()[[2]])
+    output$n_na <- renderText(sum(is.na(var())))
+  })
 }
