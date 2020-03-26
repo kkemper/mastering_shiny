@@ -753,7 +753,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui = ui, server = server)
 
-### 13.6.2
+### 13.6.2 - TO BE COMPLETED
 # Continue working with the same app from the previous exercise, and further remove redundancy in the code by modularizing how subsets and plots are created.
 
 # shim
@@ -793,7 +793,7 @@ filter01 <- function(vore){
 
 
 
-### 13.6.5
+### 13.6.5 - TO BE COMPLETED
 # The following module input provides a text control that lets you type a date in ISO8601 format (yyyy-mm-dd). Complete the module by providing a server function that uses the “error” output to display a message if the entered value is not a valid date. You can use strptime(x, "%Y-%m-%d") to parse the string; it will return NA if the value isn’t a valid date.
 
 ymdDateInput <- function(id, label) {
@@ -805,7 +805,7 @@ ymdDateInput <- function(id, label) {
   )
 }
 
-### 13.6.6
+### 13.6.6 - TO BE COMPLETED
 #The following code defines output and server components of a module that takes a numeric input and produces a bulleted list of three summary statistics. Create an app function that allows you to experiment with it. The app function should take a data frame as input, and use numericVarSelectInput() to pick the variable to summarise.
 
 summaryOuput <- function(id) {
