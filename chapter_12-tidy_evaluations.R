@@ -131,3 +131,53 @@ shinyApp(ui, server)
 
 ### 12.1.4 - User Supplied Data
 
+ui <- fluidPage(
+  fileInput("data", "dataset", accept = ".tsv"),
+  selectInput("var", "var", character()),
+  numericInput("min", "min", 1, min = 0, step = 1),
+  tableOutput("output")
+)
+
+server <- function(input, output, session) {
+  data <- reactive({
+    req(input$data)
+    vroom::vroom(input$datapath)
+  })
+  observeEvent(data(), {
+    updateSelectInput(session, "var", choices = names(data()))
+  })
+  observeEvent(input$var, {
+    val <- data()[[input$var]]
+    updateNumericInput(session, "min", value = min(val))
+  })
+    
+    output$output <- renderTable({
+      req(input$var)
+      
+      data() %>%
+        filter(.data[[input$var]] > input$min) %>%
+        arrange(.data[[input$var]]) %>%
+        head(10)
+    })
+}
+
+shinyApp(ui, server)
+
+# ============================================================
+
+df <- data.frame(x = 1, y = 2)
+input <- list(var = "x", min = 0)
+
+df %>% filter(.data[[input$var]] > input$min)
+
+
+df <- data.frame(x = 1, y = 2, input = 3)
+df %>% filter(.data[[input$var]] > input$min)
+
+df$input$min
+
+df %>% filter(.data[[input$var]] > .env$input$min)
+
+### 12.1.5 - Why not use base R?
+
+df[df[[input$var]] > input$min, ]
